@@ -1,0 +1,77 @@
+//
+//  HomeViewController.swift
+//  CMotors
+//
+//  Created by Allan Cordero Mendez on 7/27/20.
+//  Copyright © 2020 Allan Cordero Mendez. All rights reserved.
+//
+
+import UIKit
+
+class CompanyViewController: UIViewController,ViewControllerProtocol, TableDataSourceProtocol {
+    @IBOutlet weak var tabBar: UITabBarItem!
+    
+    @IBOutlet weak var tableView: UITableView!
+    
+    private var viewModel : CompanyViewModel!
+    private var dataSource : TableViewDataSourceUtil<CompanyTableViewCell,CompanyModel>!
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.didInitController()
+        self.navigationController?.isNavigationBarHidden =  false
+        self.navigationItem.rightBarButtonItem  = UIBarButtonItem(title: "Add", style: .plain, target: self, action: nil)
+
+        //   self.navigationController?.setToolbarHidden(false, animated: true)
+        // Do any additional setup after loading the view.
+    }
+    
+
+    
+    func didInitController() {
+        
+        if viewModel == nil {
+            viewModel = CompanyViewModel()
+        }
+        
+        callToDoAction()
+        
+    }
+    
+    func callToDoAction(){
+        
+        self.viewModel!.bindCompanyViewModelToController = {
+            self.updateDataSource()
+        }
+    }
+    
+    
+    func updateDataSource(){
+        
+        let company = self.viewModel.empData.getData()
+        self.dataSource = TableViewDataSourceUtil(cellIdentifier: "companyIdentifier", items: company, configureCell: { (cell, evm) in
+            cell.lblName.text = evm.name
+            cell.lblLocation.text = evm.address
+            cell.lblAddress.text = evm.lat
+            
+        })
+        
+        self.dataSource.delegate = self
+        
+        DispatchQueue.main.async {
+            self.tableView.dataSource = self.dataSource
+            self.tableView.delegate =  self.dataSource
+            self.tableView.reloadData()
+        }
+        
+    }
+    
+    
+    func didSelectItem(object: Any) {
+        
+    }
+    
+    
+    
+}

@@ -1,0 +1,86 @@
+//
+//  CompanyViewController.swift
+//  CMotors
+//
+//  Created by Allan Cordero Mendez on 7/30/20.
+//  Copyright © 2020 Allan Cordero Mendez. All rights reserved.
+//
+
+import UIKit
+
+class HomeViewController: UIViewController, ViewControllerProtocol, TableDataSourceProtocol {
+    
+    // constants
+    let companyCellHeight = 300
+    
+    // Components Layout
+    @IBOutlet weak var tabBar: UITabBarItem!
+    @IBOutlet weak var tableView: UITableView!
+    
+    private var viewModel : CompanyViewModel!
+    private var dataSource : TableViewDataSourceUtil<CompanyTableViewCell,CompanyModel>!
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.didInitController()
+        self.navigationController?.isNavigationBarHidden =  false
+        
+    }
+    
+    
+    func didInitController() {
+        
+        if viewModel == nil {
+            viewModel = CompanyViewModel()
+        }
+        
+        callToDoAction()
+        
+    }
+    
+    func callToDoAction(){
+        
+        self.viewModel!.bindCompanyViewModelToController = {
+            self.updateDataSource()
+        }
+    }
+    
+    
+    func updateDataSource(){
+        
+        let company = self.viewModel.empData.getData()
+        self.dataSource = TableViewDataSourceUtil(cellIdentifier: "companyIdentifier", items: company,cellHeight:CGFloat(self.companyCellHeight), configureCell: { (cell, evm) in
+            cell.lblName.text = evm.name
+            cell.lblLocation.text = "\(evm.distance) Km"
+            cell.lblAddress.text = evm.address
+            cell.imgCompany.image = self.getImage(base64: evm.logo)
+            
+        })
+        
+        self.dataSource.delegate = self
+        
+        DispatchQueue.main.async {
+            self.tableView.dataSource = self.dataSource
+            self.tableView.delegate =  self.dataSource
+            self.tableView.reloadData()
+        }
+        
+    }
+    
+    func getImage(base64:String) -> UIImage {
+        
+        let decodedData = Data(base64Encoded: base64, options: .ignoreUnknownCharacters)
+        let image = UIImage(data: decodedData!)
+        return image!
+        
+        
+    }
+    
+    
+    func didSelectItem(object: Any) {
+        
+    }
+    
+}
+

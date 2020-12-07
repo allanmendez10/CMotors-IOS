@@ -1,0 +1,102 @@
+//
+//  ViewController.swift
+//  CMotors
+//
+//  Created by Allan Cordero Mendez on 7/27/20.
+//  Copyright © 2020 Allan Cordero Mendez. All rights reserved.
+//
+
+import UIKit
+
+class ViewController: UIViewController,ViewControllerProtocol {
+    
+    // Storyboard components
+    @IBOutlet weak var txtEmail: UITextField!
+    @IBOutlet weak var txtPassword: UITextField!
+    @IBOutlet weak var btnLogin: UIButton!
+    
+    // ViewModel
+    private var userViewModel : UserViewModel!
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        didInitController()
+    }
+    
+    func didInitController() {
+        if userViewModel == nil {
+            userViewModel = UserViewModel()
+        }
+        
+        self.callToDoAction()
+        self.customButton()
+    }
+    
+    @IBAction func didRegisterUser(_ sender: Any) {
+        
+    }
+    
+    
+    @IBAction func didChangeTextField(_ sender: Any) {
+        customButton()
+    }
+    
+    
+    
+    @IBAction func didLogin(_ sender: Any) {
+        if validateData(){
+            self.userViewModel.login(email:txtEmail.text!,password:txtPassword.text!)
+        }
+    }
+    
+    
+    func customButton(){
+        
+        let flag = validateData()
+        
+        btnLogin.isEnabled = flag
+        
+        if flag {
+            btnLogin.alpha = 1.0
+        }else{
+            btnLogin.alpha = 0.5
+        }
+        
+    }
+    
+    func validateData() -> Bool {
+        
+        return GeneralUtil.validateDataTextfields(textFields: [txtPassword,txtEmail])
+        
+    }
+    
+    
+    func callToDoAction(){
+        
+        self.userViewModel =  UserViewModel()
+        self.userViewModel.bindUserViewModelToController = {
+            self.goToHome(response: self.userViewModel.empData)
+        }
+    }
+    
+    func goToHome(response:UserResponse){
+        if response.data != nil && (response.isSuccessFul != nil) {
+            DispatchQueue.main.async {
+                let secondStoryBoard = UIStoryboard(name: "Home", bundle: nil)
+
+            let vc = secondStoryBoard.instantiateViewController(withIdentifier: "HomeViewController") as? HomeViewController
+                
+               // self.present(vc!, animated: true, completion: nil)
+                self.navigationController?.pushViewController(vc!, animated: true)
+                //self.performSegue(withIdentifier: "goToHomeSegue", sender: self)
+                
+            }
+        }else{
+            
+        }
+        
+    }
+    
+}
+
